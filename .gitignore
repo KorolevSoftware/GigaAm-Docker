@@ -30,3 +30,15 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Service output and private runtime data
+/bin/
+/models/
+/work/
+/testdata/golden/
+*.part
+__pycache__/
+
+.venv-reference/
+.env.*
+!.env.example

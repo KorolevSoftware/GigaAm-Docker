@@ -1,0 +1,39 @@
+services:
+  asr:
+    build:
+      context: .
+      args:
+        GIGAAM_MODEL: ${GIGAAM_MODEL:-gigaam-v3-e2e-rnnt}
+    ports:
+      - "127.0.0.1:${GIGAAM_PORT:-8080}:${GIGAAM_PORT:-8080}"
+    environment:
+      GIGAAM_API_KEY: ${GIGAAM_API_KEY:?Set GIGAAM_API_KEY in .env}
+      GIGAAM_MODEL: ${GIGAAM_MODEL:-gigaam-v3-e2e-rnnt}
+      GIGAAM_MODEL_DIR: /models
+      GIGAAM_WORK_DIR: /work
+      GIGAAM_PORT: ${GIGAAM_PORT:-8080}
+      GIGAAM_CONCURRENCY: ${GIGAAM_CONCURRENCY:-1}
+      GIGAAM_ONNX_THREADS: ${GIGAAM_ONNX_THREADS:-4}
+      GIGAAM_MAX_FILE_BYTES: ${GIGAAM_MAX_FILE_BYTES:-21474836480}
+      GIGAAM_MAX_DURATION: ${GIGAAM_MAX_DURATION:-4h}
+      GIGAAM_UPLOAD_TIMEOUT: ${GIGAAM_UPLOAD_TIMEOUT:-30m}
+      GIGAAM_PROCESS_TIMEOUT: ${GIGAAM_PROCESS_TIMEOUT:-60m}
+      GIGAAM_RESPONSE_TIMEOUT: ${GIGAAM_RESPONSE_TIMEOUT:-5m}
+      GIGAAM_GRACE_PERIOD: ${GIGAAM_GRACE_PERIOD:-90s}
+      GIGAAM_RESERVE_BYTES: ${GIGAAM_RESERVE_BYTES:-536870912}
+      GIGAAM_CHUNK_DURATION: ${GIGAAM_CHUNK_DURATION:-20s}
+      GIGAAM_OVERLAP: ${GIGAAM_OVERLAP:-1s}
+      GIGAAM_PADDING: ${GIGAAM_PADDING:-300ms}
+      GIGAAM_MIN_SILENCE: ${GIGAAM_MIN_SILENCE:-500ms}
+      GIGAAM_VAD_THRESHOLD: ${GIGAAM_VAD_THRESHOLD:-0.5}
+    stop_grace_period: ${GIGAAM_STOP_GRACE_PERIOD:-7m}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent --show-error http://127.0.0.1:$${GIGAAM_PORT}/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: ${GIGAAM_HEALTH_START_PERIOD:-120s}
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    restart: unless-stopped

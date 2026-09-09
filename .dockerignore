@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+!.env.example
+models
+work
+bin
+*.wav
+*.mp3
+*.mp4
+*.onnx
+*.part

@@ -1,0 +1,23 @@
+{
+  "seconds": 281.50551045901375,
+  "rtf": 0.07819597512750381,
+  "peak_rss_kib": 1795456,
+  "characters": 57443,
+  "greetings": 618,
+  "clean": true,
+  "child_peak_rss_bytes": 1838546944,
+  "platform": "macOS arm64",
+  "cpu": "Apple M4",
+  "host_ram_bytes": 17179869184,
+  "model": "gigaam-v3-e2e-rnnt",
+  "model_revision": "322c3b29492673eb7d0b434bfa9dfb8653e34d02",
+  "onnxruntime": "1.22.0",
+  "onnx_threads": 2,
+  "concurrency": 1,
+  "audio_seconds": 3600,
+  "fixture": "synthetic repeated Russian speech",
+  "date": "2026-09-09",
+  "full_phrases": 617,
+  "trailing_phrase_partial": true,
+  "transcript_matches_repeated_source": true
+}
