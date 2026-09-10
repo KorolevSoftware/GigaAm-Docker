@@ -1,0 +1,6 @@
+services:
+  asr:
+    build:
+      dockerfile: Dockerfile.alpine
+      args:
+        ORT_BUILD_JOBS: ${ORT_BUILD_JOBS:-2}

@@ -5,6 +5,7 @@
 models
 work
 bin
+benchmarks
 *.wav
 *.mp3
 *.mp4

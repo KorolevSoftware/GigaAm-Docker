@@ -1,0 +1,22 @@
+{
+  "mimalloc_version": "3.5.1",
+  "mimalloc_source_sha256": "2602daad9b64b213a8835dee6fadda96d2081c0171bfcd3fb2db39bdc669d6b3",
+  "build_jobs": 6,
+  "ctest_passed": 6,
+  "native_files_sha256": {
+    "/usr/local/bin/gigaam": "c955fc9f3045a28291ba801e0245f3b34465af8f956644dcedd0e3d8eb9843e7",
+    "/usr/local/lib/libonnxruntime.so": "d381998baeb0b06ae0354bc0620945543fc751725ccf7d4401f20e8ef36536a8",
+    "/usr/bin/ffmpeg": "43aff9d9b8d8becd14f9e2a36a8497aa5c0e12454e60f7c0d3350ed5bef945ba"
+  },
+  "same_native_files": true,
+  "mimalloc_verbose_confirmed": true,
+  "linux_thp_enabled": "[always] madvise never",
+  "mimalloc_allow_thp": "FULL (Release default in 3.5.1)",
+  "native_inspection_note": "One short auxiliary container inspected library sizes and Linux THP during the first video session; no compilation ran during measurements.",
+  "service_restored": {
+    "container": "gigaam-docker-asr-1",
+    "health": "healthy",
+    "healthz_http": 200,
+    "models_http": 200
+  }
+}

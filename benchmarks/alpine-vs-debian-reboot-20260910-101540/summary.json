@@ -1,0 +1,86 @@
+{
+  "variants": {
+    "debian": {
+      "image_bytes": 1425140687,
+      "idle_before_mib": 1332.08203125,
+      "idle_after_mib": 1452.1328125,
+      "rss_idle_mib": 1344.904296875,
+      "peak_mib": 1553.046875,
+      "rss_peak_mib": 1489.31640625,
+      "rw_max_bytes": 0
+    },
+    "alpine": {
+      "image_bytes": 1047925883,
+      "idle_before_mib": 895.04296875,
+      "idle_after_mib": 1013.8525390625,
+      "rss_idle_mib": 916.240234375,
+      "peak_mib": 1089.58203125,
+      "rss_peak_mib": 1034.7265625,
+      "rw_max_bytes": 0
+    }
+  },
+  "timings": {
+    "wav": {
+      "debian": {
+        "runs_seconds": [
+          29.276818472,
+          29.785839389,
+          32.453217432
+        ],
+        "median_seconds": 29.785839389,
+        "median_client_seconds": 30.004751416999966
+      },
+      "alpine": {
+        "runs_seconds": [
+          27.313471387,
+          26.717815344999998,
+          33.063991432
+        ],
+        "median_seconds": 27.313471387,
+        "median_client_seconds": 27.592529958
+      },
+      "alpine_time_change_percent": -8.300481210924183
+    },
+    "video": {
+      "debian": {
+        "runs_seconds": [
+          27.106794429,
+          30.267485931,
+          33.950203056
+        ],
+        "median_seconds": 30.267485931,
+        "median_client_seconds": 30.80674225000007
+      },
+      "alpine": {
+        "runs_seconds": [
+          27.804124346000002,
+          31.193222431,
+          33.275648681999996
+        ],
+        "median_seconds": 31.193222431,
+        "median_client_seconds": 31.66037766699992
+      },
+      "alpine_time_change_percent": 3.0585179823338304
+    }
+  },
+  "host": {
+    "max_swap_mib": 0.0,
+    "pressure_levels": [
+      1,
+      2
+    ],
+    "measured_request_pressure_levels": [
+      1
+    ],
+    "warning_sample_count": 3,
+    "swapins_delta": 0,
+    "swapouts_delta": 0,
+    "compressor_min_gib": 3.8450775146484375,
+    "compressor_max_gib": 6.22869873046875
+  },
+  "unique_transcripts": [
+    "b8b82cf13aa8ea4ddf8e7e73471e3c349234d967527c84c83ccf6e244df30822"
+  ],
+  "vm_max_swapin_pages": 0,
+  "vm_max_swapout_pages": 0
+}

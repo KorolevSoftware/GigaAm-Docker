@@ -1,0 +1,7 @@
+*.log
+*.wav
+build-cache.jsonl
+*/server.log
+*/samples.json
+*/cold_request.*
+*/run_*

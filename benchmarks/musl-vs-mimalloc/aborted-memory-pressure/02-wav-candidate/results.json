@@ -1,0 +1,15 @@
+{
+  "image": "gigaam-service:alpine-mimalloc",
+  "video_name": "reference.wav",
+  "started_utc": "2026-09-10T07:55:44.700128+00:00",
+  "video_bytes": 14784590,
+  "threads": 4,
+  "model": "gigaam-v3-e2e-rnnt",
+  "sample_interval_seconds": 0.5,
+  "image_id": "sha256:420d0a8e9821be9f4545aa429f974e1be46c79be4d148b96ad5dadb4ce53d99f",
+  "image_bytes": 1048724571,
+  "measurements": [],
+  "environment": "NAME=\"Alpine Linux\"\nID=alpine\nVERSION_ID=3.24.1\nPRETTY_NAME=\"Alpine Linux v3.24\"\nHOME_URL=\"https://alpinelinux.org/\"\nBUG_REPORT_URL=\"https://gitlab.alpinelinux.org/alpine/aports/-/issues\"\naarch64\nffmpeg version 8.1.2 Copyright (c) 2000-2026 the FFmpeg developers\n873820\t/models\n23460\t/usr/local/lib",
+  "allocator_environment": "/usr/local/lib/libmimalloc.so",
+  "allocator_mappings": "ffff8d82b000-ffff8d878000 r-xp 00000000 00:3d 172152                     /usr/local/lib/libmimalloc.so\nffff8d878000-ffff8d87b000 r--p 0003d000 00:3d 172152                     /usr/local/lib/libmimalloc.so\nffff8d87b000-ffff8d87c000 rw-p 00040000 00:3d 172152                     /usr/local/lib/libmimalloc.so\nffff8d889000-ffff8d92c000 r-xp 00000000 00:3d 55162                      /lib/ld-musl-aarch64.so.1\nffff8d948000-ffff8d949000 r--p 000af000 00:3d 55162                      /lib/ld-musl-aarch64.so.1\nffff8d949000-ffff8d94a000 rw-p 000b0000 00:3d 55162                      /lib/ld-musl-aarch64.so.1"
+}

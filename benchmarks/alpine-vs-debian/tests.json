@@ -1,0 +1,18 @@
+{
+  "go_test": "PASS: go test ./... (Alpine test stage)",
+  "go_vet": "PASS: go vet ./... (Alpine test stage)",
+  "native_tests": {
+    "TestNativeVAD": "PASS",
+    "TestGolden": "PASS, RNNT and CTC, short/silence/speech fixtures",
+    "TestNativeCancellation": "PASS, RNNT and CTC"
+  },
+  "native_test_seconds": 13.698,
+  "runtime_linkage": "musl; libc.musl-aarch64.so.1; libstdc++.so.6; libgcc_s.so.1",
+  "runtime_without": [
+    "glibc loader",
+    "Python",
+    "GCC"
+  ],
+  "upstream_onnxruntime_unit_tests": "not built; onnxruntime_BUILD_UNIT_TESTS=OFF",
+  "tested_platform": "linux/arm64; amd64 build not tested"
+}

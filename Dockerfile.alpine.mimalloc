@@ -1,0 +1,26 @@
+ARG ALPINE_SERVICE_IMAGE=gigaam-service:alpine
+
+# Собираем только аллокатор под musl; 6 параллельных задач по умолчанию.
+FROM alpine:3.24.1 AS allocator
+ARG MIMALLOC_BUILD_JOBS=6
+RUN apk add --no-cache build-base cmake ninja curl ca-certificates
+WORKDIR /src/mimalloc
+RUN curl --fail --location --retry 3 \
+      https://github.com/microsoft/mimalloc/archive/refs/tags/v3.5.1.tar.gz -o /tmp/mimalloc.tar.gz \
+    && echo '2602daad9b64b213a8835dee6fadda96d2081c0171bfcd3fb2db39bdc669d6b3  /tmp/mimalloc.tar.gz' | sha256sum -c - \
+    && tar -xzf /tmp/mimalloc.tar.gz --strip-components=1 \
+    && rm /tmp/mimalloc.tar.gz
+RUN cmake -S . -B build -G Ninja \
+      -DCMAKE_BUILD_TYPE=Release -DMI_LIBC_MUSL=ON -DMI_OVERRIDE=ON \
+      -DMI_BUILD_SHARED=ON -DMI_BUILD_STATIC=OFF -DMI_BUILD_OBJECT=OFF \
+      -DMI_BUILD_TESTS=ON \
+    && cmake --build build --parallel "$MIMALLOC_BUILD_JOBS" \
+    && ctest --test-dir build --output-on-failure --parallel "$MIMALLOC_BUILD_JOBS" \
+    && strip build/libmimalloc.so.*
+
+# Поверх того же Alpine-образа добавляем библиотеку и включаем замену malloc.
+# Go, ONNX, FFmpeg и модели остаются побайтово теми же для сравнения.
+FROM ${ALPINE_SERVICE_IMAGE}
+COPY --from=allocator /src/mimalloc/build/libmimalloc.so* /usr/local/lib/
+COPY --from=allocator /src/mimalloc/LICENSE /usr/share/licenses/mimalloc/LICENSE
+ENV LD_PRELOAD=/usr/local/lib/libmimalloc.so
