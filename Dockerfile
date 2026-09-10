@@ -1,4 +1,5 @@
 ARG GIGAAM_MODEL=gigaam-v3-e2e-rnnt
+ARG GIGAAM_PRECISION=fp32
 
 # Этап 1: компилируем Go-сервис. В итоговый образ переносится только бинарник;
 # исходники, компилятор и кэш Go остаются на этом этапе.
@@ -32,10 +33,11 @@ RUN set -eu; \
 # Этот этап кэшируется независимо от изменений Go-кода.
 FROM alpine:3.24.1 AS model-files
 ARG GIGAAM_MODEL
+ARG GIGAAM_PRECISION
 RUN apk add --no-cache ca-certificates curl jq
 COPY internal/models/manifest.json /tmp/manifest.json
 COPY scripts/download-models.sh /usr/local/bin/download-models
-RUN sh /usr/local/bin/download-models /tmp/manifest.json /models "$GIGAAM_MODEL"
+RUN sh /usr/local/bin/download-models /tmp/manifest.json /models "$GIGAAM_MODEL" "$GIGAAM_PRECISION"
 
 # Этап 4: собираем рабочий образ из бинарника, ONNX Runtime, моделей и FFmpeg.
 # Сервис запускается от пользователя без root-прав; /work хранит временные файлы.
@@ -55,7 +57,8 @@ RUN ldconfig
 COPY --from=model-files --chown=10001:10001 /models/ /models/
 COPY --from=build /out/gigaam /usr/local/bin/gigaam
 ARG GIGAAM_MODEL
-ENV GIGAAM_MODEL=${GIGAAM_MODEL} GIGAAM_PORT=8080 GIGAAM_MODEL_DIR=/models GIGAAM_WORK_DIR=/work \
+ARG GIGAAM_PRECISION
+ENV GIGAAM_MODEL=${GIGAAM_MODEL} GIGAAM_PRECISION=${GIGAAM_PRECISION} GIGAAM_PORT=8080 GIGAAM_MODEL_DIR=/models GIGAAM_WORK_DIR=/work \
     GIGAAM_ORT_LIBRARY=/usr/local/lib/libonnxruntime.so
 USER 10001:10001
 WORKDIR /work

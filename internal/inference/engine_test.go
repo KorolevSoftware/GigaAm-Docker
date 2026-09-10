@@ -85,6 +85,9 @@ func TestGolden(t *testing.T) {
 	}
 	dirs := map[string]string{}
 	for _, b := range m.Bundles {
+		if b.Precision != "fp32" {
+			continue
+		}
 		dirs[b.ID] = models.Directory(root, b)
 	}
 	for _, name := range []string{"gigaam-v3-e2e-rnnt", "gigaam-v3-e2e-ctc"} {
@@ -157,6 +160,9 @@ func TestNativeSmoke(t *testing.T) {
 	m, _ := models.ManifestData()
 	dirs := map[string]string{}
 	for _, b := range m.Bundles {
+		if b.Precision != "fp32" {
+			continue
+		}
 		dirs[b.ID] = models.Directory(root, b)
 	}
 	names := []string{"gigaam-v3-e2e-rnnt", "gigaam-v3-e2e-ctc"}
@@ -267,6 +273,9 @@ func TestNativeCancellation(t *testing.T) {
 	m, _ := models.ManifestData()
 	dirs := map[string]string{}
 	for _, b := range m.Bundles {
+		if b.Precision != "fp32" {
+			continue
+		}
 		dirs[b.ID] = models.Directory(root, b)
 	}
 	for _, name := range []string{"gigaam-v3-e2e-rnnt", "gigaam-v3-e2e-ctc"} {

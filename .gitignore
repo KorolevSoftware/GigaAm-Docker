@@ -42,3 +42,12 @@ __pycache__/
 .venv-reference/
 .env.*
 !.env.example
+
+# Prepared ONNX libraries for Alpine (architecture-specific)
+/.onnxruntime/
+
+/onnx-prepare.log
+/alpine-rebuild.log
+
+# Host-specific port bindings
+/compose.local.yaml

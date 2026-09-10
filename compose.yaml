@@ -4,11 +4,13 @@ services:
       context: .
       args:
         GIGAAM_MODEL: ${GIGAAM_MODEL:-gigaam-v3-e2e-rnnt}
+        GIGAAM_PRECISION: ${GIGAAM_PRECISION:-fp32}
     ports:
       - "127.0.0.1:${GIGAAM_PORT:-8080}:${GIGAAM_PORT:-8080}"
     environment:
       GIGAAM_API_KEY: ${GIGAAM_API_KEY:?Set GIGAAM_API_KEY in .env}
       GIGAAM_MODEL: ${GIGAAM_MODEL:-gigaam-v3-e2e-rnnt}
+      GIGAAM_PRECISION: ${GIGAAM_PRECISION:-fp32}
       GIGAAM_MODEL_DIR: /models
       GIGAAM_WORK_DIR: /work
       GIGAAM_PORT: ${GIGAAM_PORT:-8080}

@@ -23,6 +23,7 @@ func TestInitializationFailureIsDiagnosedWithoutPrivateData(t *testing.T) {
 	dir := t.TempDir()
 	c := config.Config{
 		Model:       "gigaam-v3-e2e-rnnt",
+		Precision:   "fp32",
 		ModelDir:    filepath.Join(dir, "private-models"),
 		WorkDir:     filepath.Join(dir, "private-audio"),
 		Key:         "private-test-key",

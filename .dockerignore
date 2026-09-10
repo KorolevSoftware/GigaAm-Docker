@@ -11,3 +11,6 @@ benchmarks
 *.mp4
 *.onnx
 *.part
+
+.onnxruntime/.*
+.onnxruntime/*.previous

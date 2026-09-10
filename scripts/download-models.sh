@@ -4,15 +4,17 @@ set -eu
 manifest=${1:?Manifest path required}
 model_root=${2:?Destination required}
 model=${3:-gigaam-v3-e2e-rnnt}
+precision=${4:-fp32}
 
-jq -e --arg model "$model" '
-  any(.bundles[]; .id == $model) and any(.bundles[]; .id == "silero-vad")
+jq -e --arg model "$model" --arg precision "$precision" '
+  any(.bundles[]; .id == $model and .precision == $precision) and
+  any(.bundles[]; .id == "silero-vad" and .precision == "fp32")
 ' "$manifest" > /dev/null
 
 files=$(mktemp)
 trap 'rm -f "$files"' EXIT
-jq -r --arg model "$model" '
-  .bundles[] | select(.id == $model or .id == "silero-vad") |
+jq -r --arg model "$model" --arg precision "$precision" '
+  .bundles[] | select((.id == $model and .precision == $precision) or (.id == "silero-vad" and .precision == "fp32")) |
   (.id + "/" + .revision + "/" + .precision) as $dir |
   .files[] | [$dir + "/" + .name, .url, .size, .sha256] | @tsv
 ' "$manifest" > "$files"

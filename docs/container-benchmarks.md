@@ -2,9 +2,11 @@
 
 Сравнение расхода памяти, размеров и скорости: [повторные замеры после перезагрузки](../benchmarks/alpine-vs-debian-reboot-20260910-101540/report.md) и [исходная серия Debian / Alpine](../benchmarks/alpine-vs-debian/report.md). Измерение отдельного образа можно повторить так из корня репозитория, остановив другие нагрузки Docker:
 
+Перед первой сборкой Alpine подготовьте библиотеку: `sh scripts/prepare-onnx-alpine.sh` ([подробнее](alpine-build.md)).
+
 ```bash
 docker build -t gigaam-service:debian .
-docker build -f Dockerfile.alpine --build-arg ORT_BUILD_JOBS=6 -t gigaam-service:alpine .
+docker build -f Dockerfile.alpine -t gigaam-service:alpine .
 python3 scripts/benchmark-container.py --image gigaam-service:alpine \
   --video /absolute/path/recording.mp4 --output bin/benchmarks/alpine
 ```
@@ -16,7 +18,7 @@ python3 scripts/benchmark-container.py --image gigaam-service:alpine \
 Для эксперимента с аллокатором есть `Dockerfile.alpine.mimalloc`. Он собирает mimalloc 3.5.1 под musl и добавляет его через `LD_PRELOAD` поверх уже собранного Alpine-сервиса. ONNX повторно компилировать не нужно. Замена действует на нативные выделения памяти сервиса и дочернего FFmpeg; Go продолжает использовать собственную кучу.
 
 ```bash
-docker build -f Dockerfile.alpine --build-arg ORT_BUILD_JOBS=6 \
+docker build -f Dockerfile.alpine \
   -t gigaam-service:alpine .
 docker build -f Dockerfile.alpine.mimalloc --build-arg MIMALLOC_BUILD_JOBS=6 \
   -t gigaam-service:alpine-mimalloc .

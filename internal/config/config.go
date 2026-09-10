@@ -11,6 +11,7 @@ import (
 
 type Config struct {
 	Model           string
+	Precision       string
 	ModelDir        string
 	WorkDir         string
 	Key             string
@@ -35,6 +36,7 @@ type Config struct {
 func defaults() Config {
 	return Config{
 		Model:           "gigaam-v3-e2e-rnnt",
+		Precision:       "fp32",
 		ModelDir:        "/models",
 		WorkDir:         "/work",
 		Port:            "8080",
@@ -60,6 +62,7 @@ func Load() (Config, error) {
 	c := defaults()
 	for k, p := range map[string]*string{
 		"GIGAAM_MODEL":       &c.Model,
+		"GIGAAM_PRECISION":   &c.Precision,
 		"GIGAAM_MODEL_DIR":   &c.ModelDir,
 		"GIGAAM_WORK_DIR":    &c.WorkDir,
 		"GIGAAM_API_KEY":     &c.Key,
@@ -82,6 +85,9 @@ func Load() (Config, error) {
 	}
 	if c.Model != "gigaam-v3-e2e-rnnt" && c.Model != "gigaam-v3-e2e-ctc" {
 		return c, fmt.Errorf("GIGAAM_MODEL must be gigaam-v3-e2e-rnnt or gigaam-v3-e2e-ctc")
+	}
+	if c.Precision != "fp32" && c.Precision != "int8" {
+		return c, fmt.Errorf("GIGAAM_PRECISION must be fp32 or int8")
 	}
 	if n, e := strconv.Atoi(c.Port); e != nil || n < 1 || n > 65535 {
 		return c, fmt.Errorf("invalid GIGAAM_PORT")

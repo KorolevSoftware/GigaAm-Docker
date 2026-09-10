@@ -45,7 +45,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     torch.set_num_threads(2)
     for bundle in manifest["bundles"]:
-        if bundle["id"] == "silero-vad":
+        if bundle["id"] == "silero-vad" or bundle["precision"] != "fp32":
             continue
         model = bundle["id"]
         prefix = "v3_e2e_" + bundle["architecture"]

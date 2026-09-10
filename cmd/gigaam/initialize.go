@@ -22,7 +22,7 @@ func initialize(ctx context.Context, c config.Config, service *api.Server) *infe
 	}
 	setupStart := time.Now()
 	logging.Log.Info().Str("stage", "model_setup").Str("event", "start").Msg("initialization")
-	asr, vad, err := models.Locate(c.ModelDir, c.Model)
+	asr, vad, err := models.Locate(c.ModelDir, c.Model, c.Precision)
 	logging.Log.Info().Str("stage", "model_setup").Str("event", "complete").Float64("duration_ms", float64(time.Since(setupStart))/float64(time.Millisecond)).Str("code", metrics.Code(err)).Msg("initialization")
 	if err != nil {
 		service.Unavailable()
@@ -39,6 +39,6 @@ func initialize(ctx context.Context, c config.Config, service *api.Server) *infe
 		return nil
 	}
 	service.Ready(engine)
-	logging.Log.Info().Str("model", c.Model).Float64("duration_ms", float64(time.Since(initStart))/float64(time.Millisecond)).Msg("model ready")
+	logging.Log.Info().Str("model", c.Model).Str("precision", c.Precision).Float64("duration_ms", float64(time.Since(initStart))/float64(time.Millisecond)).Msg("model ready")
 	return engine
 }

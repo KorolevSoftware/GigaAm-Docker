@@ -42,14 +42,16 @@ func Directory(root string, b Bundle) string {
 
 // Locate checks that the selected ASR and VAD files are installed, without
 // creating directories, downloading files, or reading model contents.
-func Locate(root, model string) (string, string, error) {
+func Locate(root, model, precision string) (string, string, error) {
 	manifest, err := ManifestData()
 	if err != nil {
 		return "", "", diagnostics.Wrap("manifest_invalid", err)
 	}
 	var asr, vad string
 	for _, bundle := range manifest.Bundles {
-		if bundle.ID != model && bundle.ID != "silero-vad" {
+		isASR := bundle.ID == model && bundle.Precision == precision
+		isVAD := bundle.ID == "silero-vad" && bundle.Precision == "fp32"
+		if !isASR && !isVAD {
 			continue
 		}
 		dir := Directory(root, bundle)

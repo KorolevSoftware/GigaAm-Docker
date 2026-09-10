@@ -1,0 +1,23 @@
+{
+  "fp32": {
+    "image": "gigaam-service:alpine",
+    "id": "sha256:0004170b418faa89510a86e70dfdacac13ed8978ae7ca620dc102cd2499a4c4a",
+    "image_bytes": 1047925883,
+    "runtime_checks": "d381998baeb0b06ae0354bc0620945543fc751725ccf7d4401f20e8ef36536a8  /usr/local/lib/libonnxruntime.so\n43aff9d9b8d8becd14f9e2a36a8497aa5c0e12454e60f7c0d3350ed5bef945ba  /usr/bin/ffmpeg\ndf42e9546a6c61b3871af9b2bf97d05d27bd1016511b9ae204acad5b77412668  /usr/bin/ffprobe\n873820\t/models\n3.24.1\n"
+  },
+  "int8": {
+    "image": "gigaam-service:alpine-int8",
+    "id": "sha256:066d20f58d9306cf5ac30e9ab064b09707f4d0b58e17993b4d4f916be3cc9e67",
+    "image_bytes": 381946013,
+    "runtime_checks": "d381998baeb0b06ae0354bc0620945543fc751725ccf7d4401f20e8ef36536a8  /usr/local/lib/libonnxruntime.so\n43aff9d9b8d8becd14f9e2a36a8497aa5c0e12454e60f7c0d3350ed5bef945ba  /usr/bin/ffmpeg\ndf42e9546a6c61b3871af9b2bf97d05d27bd1016511b9ae204acad5b77412668  /usr/bin/ffprobe\n223440\t/models\n3.24.1\n"
+  },
+  "original_manifest_sha256": "11f8b0adf8b313b0d48c459f31fb96bc7411f773929d9c14c4d930a700888801",
+  "experimental_manifest_sha256": "30abfd5f8ac6fe4dba94d29688bda63350d7596635a80d2823ef2348ed975314",
+  "service_restored": {
+    "container": "gigaam-docker-asr-1",
+    "health": "healthy",
+    "healthz_http": 200,
+    "models_http": 200
+  },
+  "verified_downloaded_files": 6
+}

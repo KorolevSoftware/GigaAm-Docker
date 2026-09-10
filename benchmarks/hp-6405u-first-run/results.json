@@ -1,0 +1,86 @@
+{
+  "cpu": "{\n   \"lscpu\": [\n      {\n         \"field\": \"Architecture:\",\n         \"data\": \"x86_64\"\n      },{\n         \"field\": \"CPU op-mode(s):\",\n         \"data\": \"32-bit, 64-bit\"\n      },{\n         \"field\": \"Address sizes:\",\n         \"data\": \"39 bits physical, 48 bits virtual\"\n      },{\n         \"field\": \"Byte Order:\",\n         \"data\": \"Little Endian\"\n      },{\n         \"field\": \"CPU(s):\",\n         \"data\": \"4\"\n      },{\n         \"field\": \"On-line CPU(s) list:\",\n         \"data\": \"0-3\"\n      },{\n         \"field\": \"Vendor ID:\",\n         \"data\": \"GenuineIntel\"\n      },{\n         \"field\": \"BIOS Vendor ID:\",\n         \"data\": \"Intel(R) Corporation\"\n      },{\n         \"field\": \"Model name:\",\n         \"data\": \"Intel(R) Pentium(R) CPU 6405U @ 2.40GHz\"\n      },{\n         \"field\": \"BIOS Model name:\",\n         \"data\": \"Intel(R) Pentium(R) CPU 6405U @ 2.40GHz To Be Filled By O.E.M. CPU @ 2.4GHz\"\n      },{\n         \"field\": \"BIOS CPU family:\",\n         \"data\": \"11\"\n      },{\n         \"field\": \"CPU family:\",\n         \"data\": \"6\"\n      },{\n         \"field\": \"Model:\",\n         \"data\": \"142\"\n      },{\n         \"field\": \"Thread(s) per core:\",\n         \"data\": \"2\"\n      },{\n         \"field\": \"Core(s) per socket:\",\n         \"data\": \"2\"\n      },{\n         \"field\": \"Socket(s):\",\n         \"data\": \"1\"\n      },{\n         \"field\": \"Stepping:\",\n         \"data\": \"12\"\n      },{\n         \"field\": \"CPU(s) scaling MHz:\",\n         \"data\": \"100%\"\n      },{\n         \"field\": \"CPU max MHz:\",\n         \"data\": \"2400.0000\"\n      },{\n         \"field\": \"CPU min MHz:\",\n         \"data\": \"400.0000\"\n      },{\n         \"field\": \"BogoMIPS:\",\n         \"data\": \"4800.00\"\n      },{\n         \"field\": \"Flags:\",\n         \"data\": \"fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust smep erms invpcid mpx rdseed smap clflushopt intel_pt xsaveopt xsavec xgetbv1 xsaves dtherm arat pln pts hwp hwp_notify hwp_act_window hwp_epp vnmi md_clear flush_l1d arch_capabilities\"\n      },{\n         \"field\": \"Virtualization:\",\n         \"data\": \"VT-x\"\n      },{\n         \"field\": \"L1d cache:\",\n         \"data\": \"64 KiB (2 instances)\"\n      },{\n         \"field\": \"L1i cache:\",\n         \"data\": \"64 KiB (2 instances)\"\n      },{\n         \"field\": \"L2 cache:\",\n         \"data\": \"512 KiB (2 instances)\"\n      },{\n         \"field\": \"L3 cache:\",\n         \"data\": \"2 MiB (1 instance)\"\n      },{\n         \"field\": \"NUMA node(s):\",\n         \"data\": \"1\"\n      },{\n         \"field\": \"NUMA node0 CPU(s):\",\n         \"data\": \"0-3\"\n      },{\n         \"field\": \"Vulnerability Gather data sampling:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Itlb multihit:\",\n         \"data\": \"KVM: Mitigation: VMX disabled\"\n      },{\n         \"field\": \"Vulnerability L1tf:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Mds:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Meltdown:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Mmio stale data:\",\n         \"data\": \"Mitigation; Clear CPU buffers; SMT vulnerable\"\n      },{\n         \"field\": \"Vulnerability Reg file data sampling:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Retbleed:\",\n         \"data\": \"Mitigation; Enhanced IBRS\"\n      },{\n         \"field\": \"Vulnerability Spec rstack overflow:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Spec store bypass:\",\n         \"data\": \"Mitigation; Speculative Store Bypass disabled via prctl\"\n      },{\n         \"field\": \"Vulnerability Spectre v1:\",\n         \"data\": \"Mitigation; usercopy/swapgs barriers and __user pointer sanitization\"\n      },{\n         \"field\": \"Vulnerability Spectre v2:\",\n         \"data\": \"Mitigation; Enhanced / Automatic IBRS; IBPB conditional; RSB filling; PBRSB-eIBRS SW sequence; BHI SW loop, KVM SW loop\"\n      },{\n         \"field\": \"Vulnerability Srbds:\",\n         \"data\": \"Mitigation; Microcode\"\n      },{\n         \"field\": \"Vulnerability Tsx async abort:\",\n         \"data\": \"Not affected\"\n      }\n   ]\n}",
+  "threads": 2,
+  "precision": "fp32",
+  "audio_seconds": 30,
+  "sample": "first 30 seconds of existing benchmark lecture",
+  "measurements": [
+    {
+      "phase": "first_request",
+      "client_seconds": 12.572008504999985,
+      "text_sha256": "d088ab3a3cbde4cdc30a236639be372e840a7699a89e3cb0381a12e97402e118",
+      "characters": 565,
+      "metrics": {
+        "level": "INFO",
+        "request_id": "2b16ae171d1849287d941d33dab8c08c",
+        "stage": "complete",
+        "duration_ms": 12563.491329,
+        "code": "ok",
+        "upload_ms": 2.586997,
+        "probe_ms": 305.877645,
+        "convert_ms": 124.906109,
+        "inference_ms": 12127.8956,
+        "cleanup_ms": 0.720532,
+        "vad_ms": 501.625237,
+        "frontend_ms": 378.35802,
+        "encoder_ms": 10925.38208,
+        "decoder_ms": 312.099791,
+        "upload_bytes": 960044,
+        "audio_seconds": 30,
+        "asr_chunks": 2,
+        "asr_audio_seconds": 31,
+        "rtf": 0.41878304429999996,
+        "inference_rtf": 0.40426318666666666,
+        "time": "2026-09-10T12:36:46.929780888Z",
+        "msg": "transcription"
+      }
+    },
+    {
+      "phase": "warm_request",
+      "client_seconds": 12.457147171000088,
+      "text_sha256": "d088ab3a3cbde4cdc30a236639be372e840a7699a89e3cb0381a12e97402e118",
+      "characters": 565,
+      "metrics": {
+        "level": "INFO",
+        "request_id": "a4312e7da1a4349b136c080cbffced45",
+        "stage": "complete",
+        "duration_ms": 12455.718389,
+        "code": "ok",
+        "upload_ms": 2.78123,
+        "probe_ms": 136.318078,
+        "convert_ms": 119.493935,
+        "inference_ms": 12195.86374,
+        "cleanup_ms": 0.637248,
+        "vad_ms": 491.462018,
+        "frontend_ms": 377.968011,
+        "encoder_ms": 10984.701686,
+        "decoder_ms": 331.904151,
+        "upload_bytes": 960044,
+        "audio_seconds": 30,
+        "asr_chunks": 2,
+        "asr_audio_seconds": 31,
+        "rtf": 0.41519061296666665,
+        "inference_rtf": 0.40652879133333336,
+        "time": "2026-09-10T12:36:59.393988547Z",
+        "msg": "transcription"
+      }
+    }
+  ],
+  "models": {
+    "data": [
+      {
+        "created": 0,
+        "id": "gigaam-v3-e2e-rnnt",
+        "object": "model",
+        "owned_by": "local"
+      }
+    ],
+    "object": "list"
+  },
+  "idle_stats": "{\"BlockIO\":\"913MB / 0B\",\"CPUPerc\":\"0.02%\",\"Container\":\"a8d0b7d7cb489cb67c754ca959c9b34f7555c87edf2df75e03503f3c262f9866\",\"ID\":\"a8d0b7d7cb48\",\"MemPerc\":\"16.68%\",\"MemUsage\":\"1.265GiB / 7.583GiB\",\"Name\":\"gigaam-service-asr-1\",\"NetIO\":\"9.65kB / 810B\",\"PIDs\":\"12\"}",
+  "image_bytes": 2253099477,
+  "after_stats": "{\"BlockIO\":\"981MB / 3.85MB\",\"CPUPerc\":\"23.49%\",\"Container\":\"a8d0b7d7cb489cb67c754ca959c9b34f7555c87edf2df75e03503f3c262f9866\",\"ID\":\"a8d0b7d7cb48\",\"MemPerc\":\"18.58%\",\"MemUsage\":\"1.409GiB / 7.583GiB\",\"Name\":\"gigaam-service-asr-1\",\"NetIO\":\"1.94MB / 7.95kB\",\"PIDs\":\"13\"}",
+  "cgroup_memory": "2395308032\n2399842304",
+  "free_disk": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/nvme0n1p3   55G   36G   17G  68% /",
+  "host_memory": "total        used        free      shared  buff/cache   available\nMem:           7.6Gi       3.5Gi       202Mi       533Mi       4.7Gi       4.1Gi\nSwap:          4.0Gi       5.2Mi       4.0Gi"
+}

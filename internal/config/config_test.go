@@ -12,8 +12,8 @@ func TestDefaultsAndValidation(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if c.Model != "gigaam-v3-e2e-rnnt" || c.MaxFile != 20<<30 {
-		t.Fatal(c.Model, c.MaxFile)
+	if c.Model != "gigaam-v3-e2e-rnnt" || c.Precision != "fp32" || c.MaxFile != 20<<30 {
+		t.Fatal(c.Model, c.Precision, c.MaxFile)
 	}
 	for _, tt := range [][2]string{{"GIGAAM_MODEL", "unknown"}, {"GIGAAM_PORT", "65536"}, {"GIGAAM_CONCURRENCY", "0"}, {"GIGAAM_CHUNK_DURATION", "31s"}, {"GIGAAM_OVERLAP", "20s"}, {"GIGAAM_VAD_THRESHOLD", "NaN"}, {"GIGAAM_WORK_DIR", "/models/work"}} {
 		t.Run(tt[0], func(t *testing.T) {
@@ -24,6 +24,27 @@ func TestDefaultsAndValidation(t *testing.T) {
 		})
 	}
 }
+
+func TestPrecisionSelection(t *testing.T) {
+	t.Setenv("GIGAAM_API_KEY", "test-key")
+	for _, model := range []string{"gigaam-v3-e2e-rnnt", "gigaam-v3-e2e-ctc"} {
+		for _, precision := range []string{"fp32", "int8", "fp16", "INT8", ""} {
+			t.Run(model+"/"+precision, func(t *testing.T) {
+				t.Setenv("GIGAAM_MODEL", model)
+				t.Setenv("GIGAAM_PRECISION", precision)
+				c, err := Load()
+				valid := precision == "fp32" || precision == "int8"
+				if valid && (err != nil || c.Precision != precision) {
+					t.Fatalf("precision=%q, err=%v", c.Precision, err)
+				}
+				if !valid && err == nil {
+					t.Fatal("unsupported precision accepted")
+				}
+			})
+		}
+	}
+}
+
 func TestKeyFile(t *testing.T) {
 	t.Setenv("GIGAAM_API_KEY_FILE", "/does-not-exist")
 	if _, e := Load(); e == nil {

@@ -1,0 +1,93 @@
+{
+  "image": "gigaam-service:alpine",
+  "video_name": "11.9 Линукс для собесов.mp4",
+  "started_utc": "2026-09-10T08:57:00.113048+00:00",
+  "video_bytes": 13157439,
+  "threads": 4,
+  "model": "gigaam-v3-e2e-rnnt",
+  "sample_interval_seconds": 0.5,
+  "image_id": "sha256:0004170b418faa89510a86e70dfdacac13ed8978ae7ca620dc102cd2499a4c4a",
+  "image_bytes": 1047925883,
+  "measurements": [
+    {
+      "phase": "cold_request",
+      "client_seconds": 27.511042875000385,
+      "text_sha256": "b8b82cf13aa8ea4ddf8e7e73471e3c349234d967527c84c83ccf6e244df30822",
+      "metrics": {
+        "level": "INFO",
+        "request_id": "f53d33b5eab3e9622ff1ec15938038a3",
+        "stage": "complete",
+        "duration_ms": 27495.041096,
+        "code": "ok",
+        "upload_ms": 191.869125,
+        "probe_ms": 36.169125,
+        "convert_ms": 721.957375,
+        "inference_ms": 26539.852679,
+        "cleanup_ms": 3.35675,
+        "vad_ms": 1627.330427,
+        "frontend_ms": 2809.419665,
+        "encoder_ms": 20515.977469,
+        "decoder_ms": 1541.488544,
+        "upload_bytes": 13157439,
+        "audio_seconds": 462.016,
+        "asr_chunks": 42,
+        "asr_audio_seconds": 470.888,
+        "rtf": 0.059511014977836264,
+        "inference_rtf": 0.057443579181240476,
+        "time": "2026-09-10T08:57:41.521546041Z",
+        "msg": "transcription"
+      }
+    },
+    {
+      "phase": "run_1",
+      "client_seconds": 21.587887000000592,
+      "text_sha256": "b8b82cf13aa8ea4ddf8e7e73471e3c349234d967527c84c83ccf6e244df30822",
+      "metrics": {
+        "level": "INFO",
+        "request_id": "a1350690d2de6bb07a77a0c5ab9bf63f",
+        "stage": "complete",
+        "duration_ms": 21561.988052,
+        "code": "ok",
+        "upload_ms": 94.076126,
+        "probe_ms": 31.251625,
+        "convert_ms": 306.498334,
+        "inference_ms": 21128.292594,
+        "cleanup_ms": 1.202,
+        "vad_ms": 1468.220176,
+        "frontend_ms": 2803.605081,
+        "encoder_ms": 15666.771004,
+        "decoder_ms": 1145.505461,
+        "upload_bytes": 13157439,
+        "audio_seconds": 462.016,
+        "asr_chunks": 42,
+        "asr_audio_seconds": 470.888,
+        "rtf": 0.04666935355485524,
+        "inference_rtf": 0.04573065130644826,
+        "time": "2026-09-10T08:58:05.140142303Z",
+        "msg": "transcription"
+      }
+    }
+  ],
+  "environment": "NAME=\"Alpine Linux\"\nID=alpine\nVERSION_ID=3.24.1\nPRETTY_NAME=\"Alpine Linux v3.24\"\nHOME_URL=\"https://alpinelinux.org/\"\nBUG_REPORT_URL=\"https://gitlab.alpinelinux.org/alpine/aports/-/issues\"\naarch64\nffmpeg version 8.1.2 Copyright (c) 2000-2026 the FFmpeg developers\n873820\t/models\n22680\t/usr/local/lib",
+  "allocator_environment": "",
+  "allocator_mappings": "ffffa7b25000-ffffa7bc8000 r-xp 00000000 00:3d 55162                      /lib/ld-musl-aarch64.so.1\nffffa7be4000-ffffa7be5000 r--p 000af000 00:3d 55162                      /lib/ld-musl-aarch64.so.1\nffffa7be5000-ffffa7be6000 rw-p 000b0000 00:3d 55162                      /lib/ld-musl-aarch64.so.1",
+  "container_rw_bytes": 0,
+  "container_rootfs_bytes": 1047925883,
+  "idle_before": {
+    "working_set_bytes": 939454464,
+    "rss_bytes": 961912832,
+    "cgroup_bytes": 939454464
+  },
+  "idle_after": {
+    "working_set_bytes": 1057988608.0,
+    "rss_bytes": 1075523584.0,
+    "cgroup_bytes": 1057988608.0
+  },
+  "processing_peak": {
+    "working_set_bytes": 1061724160,
+    "rss_bytes": 1078538240,
+    "hwm_bytes": 1081212928,
+    "cgroup_bytes": 1089671168
+  },
+  "sampling_errors": []
+}
