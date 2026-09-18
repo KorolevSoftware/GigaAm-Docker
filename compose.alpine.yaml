@@ -1,4 +1,0 @@
-services:
-  asr:
-    build:
-      dockerfile: Dockerfile.alpine
