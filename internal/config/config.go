@@ -21,7 +21,6 @@ type Config struct {
 	Threads         int
 	MaxFile         int64
 	ReserveBytes    int64
-	MaxDuration     time.Duration
 	UploadTimeout   time.Duration
 	ProcessTimeout  time.Duration
 	ResponseTimeout time.Duration
@@ -45,7 +44,6 @@ func defaults() Config {
 		Threads:         4,
 		MaxFile:         20 << 30,
 		ReserveBytes:    512 << 20,
-		MaxDuration:     4 * time.Hour,
 		UploadTimeout:   30 * time.Minute,
 		ProcessTimeout:  time.Hour,
 		ResponseTimeout: 5 * time.Minute,
@@ -120,7 +118,6 @@ func Load() (Config, error) {
 		}
 	}
 	for k, p := range map[string]*time.Duration{
-		"GIGAAM_MAX_DURATION":     &c.MaxDuration,
 		"GIGAAM_UPLOAD_TIMEOUT":   &c.UploadTimeout,
 		"GIGAAM_PROCESS_TIMEOUT":  &c.ProcessTimeout,
 		"GIGAAM_RESPONSE_TIMEOUT": &c.ResponseTimeout,
@@ -138,8 +135,8 @@ func Load() (Config, error) {
 			*p = n
 		}
 	}
-	if c.Chunk > 30*time.Second || c.Chunk < time.Second || c.Overlap >= c.Chunk/2 || c.Padding >= c.Chunk/2 || c.MinSilence >= c.Chunk || c.MaxDuration > 24*time.Hour {
-		return c, fmt.Errorf("invalid audio window/duration limits (chunk 1s..30s)")
+	if c.Chunk > 30*time.Second || c.Chunk < time.Second || c.Overlap >= c.Chunk/2 || c.Padding >= c.Chunk/2 || c.MinSilence >= c.Chunk {
+		return c, fmt.Errorf("invalid audio window limits (chunk 1s..30s)")
 	}
 	if v, ok := os.LookupEnv("GIGAAM_VAD_THRESHOLD"); ok {
 		n, e := strconv.ParseFloat(v, 64)

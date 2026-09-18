@@ -29,7 +29,7 @@ type fakeEngine func(context.Context, *audio.WAV) (string, error)
 func (f fakeEngine) Transcribe(c context.Context, w *audio.WAV) (string, error) { return f(c, w) }
 func testServer(t *testing.T) *Server {
 	t.Helper()
-	c := config.Config{Key: "test-secret", Model: "gigaam-v3-e2e-rnnt", WorkDir: t.TempDir(), Concurrency: 1, MaxFile: 1 << 20, ReserveBytes: 1, MaxDuration: time.Minute, UploadTimeout: time.Second, ProcessTimeout: 5 * time.Second, ResponseTimeout: time.Second}
+	c := config.Config{Key: "test-secret", Model: "gigaam-v3-e2e-rnnt", WorkDir: t.TempDir(), Concurrency: 1, MaxFile: 1 << 20, ReserveBytes: 1, UploadTimeout: time.Second, ProcessTimeout: 5 * time.Second, ResponseTimeout: time.Second}
 	s := New(c)
 	s.freeBytes = func(string) (uint64, error) { return 1 << 40, nil }
 	s.Ready(fakeEngine(func(context.Context, *audio.WAV) (string, error) { return "Привет, мир!", nil }))

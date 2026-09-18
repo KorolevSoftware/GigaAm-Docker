@@ -54,8 +54,6 @@ func processingError(e error) *Error {
 		return problem(http.StatusGatewayTimeout, "transcription_timeout", "Transcription timed out.", nil)
 	case errors.Is(e, context.Canceled):
 		return problem(statusClientClosedRequest, "request_cancelled", "Request cancelled.", nil)
-	case errors.Is(e, audio.ErrDuration):
-		return problem(http.StatusUnprocessableEntity, "duration_exceeded", "Recording exceeds duration limit.", "file")
 	case errors.Is(e, audio.ErrNoAudio):
 		return problem(http.StatusUnprocessableEntity, "no_audio_stream", "File contains no audio stream.", "file")
 	case errors.Is(e, audio.ErrUnavailable):

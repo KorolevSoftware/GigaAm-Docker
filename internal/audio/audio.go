@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"math"
 	"os"
@@ -13,14 +12,12 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/KorolevSoftware/GigaAm-Docker/internal/metrics"
 )
 
 var ErrInvalid = errors.New("invalid audio")
 var ErrNoAudio = errors.New("no audio stream")
-var ErrDuration = errors.New("duration exceeded")
 var ErrUnavailable = errors.New("media tool unavailable")
 var ErrStorage = errors.New("media storage unavailable")
 
@@ -63,19 +60,15 @@ func command(ctx context.Context, name string, args ...string) ([]byte, error) {
 	}
 	return out.data, nil
 }
-func Probe(ctx context.Context, path string, max time.Duration) error {
-	data, e := command(ctx, "ffprobe", "-v", "error", "-protocol_whitelist", "file,pipe", "-format_whitelist", formats, "-select_streams", "a:0", "-show_entries", "stream=codec_type,duration:format=duration", "-of", "json", path)
+func Probe(ctx context.Context, path string) error {
+	data, e := command(ctx, "ffprobe", "-v", "error", "-protocol_whitelist", "file,pipe", "-format_whitelist", formats, "-select_streams", "a:0", "-show_entries", "stream=codec_type", "-of", "json", path)
 	if e != nil {
 		return e
 	}
 	var p struct {
 		Streams []struct {
 			CodecType string `json:"codec_type"`
-			Duration  string `json:"duration"`
 		} `json:"streams"`
-		Format struct {
-			Duration string `json:"duration"`
-		} `json:"format"`
 	}
 	if json.Unmarshal(data, &p) != nil {
 		return ErrInvalid
@@ -83,37 +76,43 @@ func Probe(ctx context.Context, path string, max time.Duration) error {
 	if len(p.Streams) == 0 {
 		return ErrNoAudio
 	}
-	for _, v := range []string{p.Format.Duration, p.Streams[0].Duration} {
-		if d, e := strconv.ParseFloat(v, 64); e == nil && !math.IsNaN(d) && d > max.Seconds() {
-			return ErrDuration
-		}
-	}
 	return nil
 }
-func Prepare(ctx context.Context, dir string, max time.Duration) (*WAV, error) {
+func Prepare(ctx context.Context, dir string, reserveBytes int64) (*WAV, error) {
 	src := filepath.Join(dir, "source.bin")
 	finishProbe := metrics.Start(ctx, metrics.Probe)
-	probeErr := Probe(ctx, src, max)
+	probeErr := Probe(ctx, src)
 	finishProbe(metrics.Code(probeErr))
 	if e := probeErr; e != nil {
 		return nil, e
 	}
 	dst := filepath.Join(dir, "prepared.wav")
+	// Bound temporary output by available disk, not recording duration. FFmpeg
+	// can finish successfully at -fs, so reaching the bound must be an error.
+	free, e := FreeBytes(dir)
+	if e != nil || reserveBytes < 0 || free <= uint64(reserveBytes)+4096 {
+		return nil, ErrStorage
+	}
+	outputLimit := min(free-uint64(reserveBytes), uint64(math.MaxInt64))
 	finishConvert := metrics.Start(ctx, metrics.Convert)
-	_, e := command(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin", "-y", "-protocol_whitelist", "file,pipe", "-format_whitelist", formats, "-i", src, "-map", "0:a:0", "-vn", "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", "-t", fmt.Sprintf("%.6f", max.Seconds()+1), "-rf64", "never", dst)
+	e = convert(ctx, src, dst, outputLimit)
 	finishConvert(metrics.Code(e))
 	if e != nil {
 		return nil, e
 	}
-	w, e := OpenWAV(dst)
-	if e != nil {
-		return nil, e
+	return OpenWAV(dst)
+}
+
+func convert(ctx context.Context, src, dst string, outputLimit uint64) error {
+	_, e := command(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin", "-y", "-protocol_whitelist", "file,pipe", "-format_whitelist", formats, "-i", src, "-map", "0:a:0", "-vn", "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", "-rf64", "auto", "-fs", strconv.FormatUint(outputLimit, 10), dst)
+	if e == nil {
+		var st os.FileInfo
+		st, e = os.Stat(dst)
+		if e == nil && uint64(st.Size()) >= outputLimit {
+			e = ErrStorage
+		}
 	}
-	if float64(w.Samples)/Rate > max.Seconds() {
-		w.Close()
-		return nil, ErrDuration
-	}
-	return w, nil
+	return e
 }
 
 type WAV struct {
@@ -134,7 +133,7 @@ func OpenWAV(path string) (*WAV, error) {
 		}
 	}()
 	var h [12]byte
-	if _, e = io.ReadFull(f, h[:]); e != nil || string(h[:4]) != "RIFF" || string(h[8:]) != "WAVE" {
+	if _, e = io.ReadFull(f, h[:]); e != nil || (string(h[:4]) != "RIFF" && string(h[:4]) != "RF64") || string(h[8:]) != "WAVE" {
 		return nil, ErrInvalid
 	}
 	st, e := f.Stat()
@@ -142,6 +141,9 @@ func OpenWAV(path string) (*WAV, error) {
 		return nil, e
 	}
 	valid := false
+	rf64 := string(h[:4]) == "RF64"
+	var dataSize uint64
+	hasDataSize := false
 	for {
 		var ch [8]byte
 		if _, e = io.ReadFull(f, ch[:]); e != nil {
@@ -149,10 +151,26 @@ func OpenWAV(path string) (*WAV, error) {
 		}
 		n := int64(binary.LittleEndian.Uint32(ch[4:]))
 		off, _ := f.Seek(0, io.SeekCurrent)
+		if rf64 && string(ch[:4]) == "data" && n == 0xffffffff {
+			if !hasDataSize || dataSize > uint64(st.Size()-off) {
+				return nil, ErrInvalid
+			}
+			n = int64(dataSize)
+		}
 		if n > st.Size()-off {
 			return nil, ErrInvalid
 		}
 		switch string(ch[:4]) {
+		case "ds64":
+			if !rf64 || hasDataSize || n < 28 {
+				return nil, ErrInvalid
+			}
+			var b [28]byte
+			if _, e = io.ReadFull(f, b[:]); e != nil {
+				return nil, ErrInvalid
+			}
+			dataSize = binary.LittleEndian.Uint64(b[8:16])
+			hasDataSize = true
 		case "fmt ":
 			if n < 16 {
 				return nil, ErrInvalid

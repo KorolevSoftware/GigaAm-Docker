@@ -60,8 +60,7 @@ func (s *Server) transcribe(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) process(r *http.Request, engine Engine, rc *http.ResponseController) (text, format string, err *Error) {
-	wavBytes := int64(s.c.MaxDuration.Seconds()+1)*audio.Rate*2 + 4096
-	if e := s.storage(s.c.MaxFile + wavBytes); e != nil {
+	if e := s.storage(s.c.MaxFile); e != nil {
 		return "", "", e
 	}
 	dir, e := os.MkdirTemp(s.c.WorkDir, "request-")
@@ -88,12 +87,12 @@ func (s *Server) process(r *http.Request, engine Engine, rc *http.ResponseContro
 		return "", "", err
 	}
 	_ = rc.SetReadDeadline(time.Time{})
-	if e := s.storage(wavBytes); e != nil {
+	if e := s.storage(0); e != nil {
 		return "", "", e
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), s.c.ProcessTimeout)
 	defer cancel()
-	wav, e := audio.Prepare(ctx, dir, s.c.MaxDuration)
+	wav, e := audio.Prepare(ctx, dir, s.c.ReserveBytes)
 	if e != nil {
 		return "", "", processingError(e)
 	}
