@@ -1,0 +1,23 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+[
+  {
+    "adapter": "Delve",
+    "label": "go run CTC",
+    "request": "launch",
+    "mode": "debug",
+    "program": "$ZED_WORKTREE_ROOT/GigaAM-CTC/cmd",
+    "dlvCwd": "$ZED_WORKTREE_ROOT/GigaAM-CTC",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "args": [],
+    "buildFlags": [],
+    "env": {
+      "ORT_LIB_PATH":"/Volumes/Goida/Libs/onnxruntime-osx-arm64-1.30.0/lib/libonnxruntime.dylib",
+      "CTC_MODE_PATH":"/Volumes/Goida/LLM/gigaam-v3-e2e-ctc/v3_e2e_ctc.onnx",
+      "VAD_MODEL_PATH":"/Volumes/Goida/LLM/silero_vad/silero_vad.onnx",
+      "FEATURE_COEFFICIENTS_PATH":"/Volumes/Goida/LLM/gigaam-v3-e2e-ctc/feature_coefficients.json"
+    }
+  }
+]
