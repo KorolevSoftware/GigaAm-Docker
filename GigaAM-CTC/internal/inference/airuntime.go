@@ -41,58 +41,79 @@ type VadWindow struct {
 	Stop  int
 }
 
-func MakeWindows(probably []float32, audio []float32, chunkSeconds float32) []VadWindow {
-	resultWindows := make([]VadWindow, 0, 50)
-	chunk := int(chunkSeconds * RATE)
-	// Перекрытие 1 с; запас до/после речи 0,3 с; пауза для закрытия окна 0,5 с.
-	overlap, pad, silence := RATE, 4800, 8000
-	// -1 означает: речевое окно / отсчёт паузы ещё не начаты.
-	start, lastVoice, silenceAt := -1, 0, -1
-	for frame, prob := range probably {
-		// Один результат Silero соответствует 512 новым отсчётам, то есть 32 мс.
-		pos := frame * 512
-		end := min(pos+512, len(audio))
+func MakeWindows(ctx context.Context, probably <-chan float32, audio []float32, chunkSeconds float32) <-chan VadWindow {
+	resultWindowsChan := make(chan VadWindow, 10)
+	go func() {
+		send := func(w VadWindow) bool {
+			select {
+			case resultWindowsChan <- w:
+				return true
+			case <-ctx.Done():
+				return false
+			}
+		}
 
-		// Разные пороги начала речи и тишины уменьшают переключения на границе.
-		if prob >= 0.5 {
+		chunk := int(chunkSeconds * RATE)
+		// Перекрытие 1 с; запас до/после речи 0,3 с; пауза для закрытия окна 0,5 с.
+		overlap, pad, silence := RATE, 4800, 8000
+		// -1 означает: речевое окно / отсчёт паузы ещё не начаты.
+		start, lastVoice, silenceAt := -1, 0, -1
+		defer close(resultWindowsChan)
+
+		frame := 0
+		for prob := range probably {
+			// Один результат Silero соответствует 512 новым отсчётам, то есть 32 мс.
+			pos := frame * 512
+			frame++
+			end := min(pos+512, len(audio))
+
+			// Разные пороги начала речи и тишины уменьшают переключения на границе.
+			if prob >= 0.5 {
+				if start < 0 {
+					start = max(0, pos-pad)
+				}
+				lastVoice = end
+				silenceAt = -1
+			} else if prob < 0.35 && start >= 0 && silenceAt < 0 {
+				silenceAt = pos
+			}
+
 			if start < 0 {
-				start = max(0, pos-pad)
+				continue
 			}
-			lastVoice = end
-			silenceAt = -1
-		} else if prob < 0.35 && start >= 0 && silenceAt < 0 {
-			silenceAt = pos
-		}
 
-		if start < 0 {
-			continue
-		}
-
-		if silenceAt >= 0 && end-silenceAt >= silence {
-			// Пауза достаточно длинная: закрываем окно, сохраняя запас после речи.
-			if stop := min(lastVoice+pad, end); stop > start {
-				resultWindows = append(resultWindows, VadWindow{Start: start, Stop: stop})
+			if silenceAt >= 0 && end-silenceAt >= silence {
+				// Пауза достаточно длинная: закрываем окно, сохраняя запас после речи.
+				if stop := min(lastVoice+pad, end); stop > start {
+					if !send(VadWindow{Start: start, Stop: stop}) {
+						return
+					}
+				}
+				start = -1
+				silenceAt = -1
+				continue
 			}
-			start = -1
-			silenceAt = -1
-			continue
+
+			if end-start >= chunk {
+				// Речь непрерывная, но лимит длины достигнут. Режем у тихой точки.
+				stop := quietBoundary(audio, start, start+chunk)
+				if !send(VadWindow{Start: start, Stop: stop}) {
+					return
+				}
+				// Следующее окно повторит последнюю секунду предыдущего.
+				start = stop - overlap
+			}
 		}
 
-		if end-start >= chunk {
-			// Речь непрерывная, но лимит длины достигнут. Режем у тихой точки.
-			stop := quietBoundary(audio, start, start+chunk)
-			resultWindows = append(resultWindows, VadWindow{Start: start, Stop: stop})
-			// Следующее окно повторит последнюю секунду предыдущего.
-			start = stop - overlap
+		// Конец файла: выдаём оставшуюся речь, даже если после неё не было паузы.
+		if start >= 0 && len(audio) > start {
+			if !send(VadWindow{Start: start, Stop: len(audio)}) {
+				return
+			}
 		}
-	}
 
-	// Конец файла: выдаём оставшуюся речь, даже если после неё не было паузы.
-	if start >= 0 && len(audio) > start {
-		resultWindows = append(resultWindows, VadWindow{Start: start, Stop: len(audio)})
-	}
-
-	return resultWindows
+	}()
+	return resultWindowsChan
 }
 
 func quietBoundary(audio []float32, start, stop int) int {
@@ -130,7 +151,7 @@ func quietBoundary(audio []float32, start, stop int) int {
 	return stop
 }
 
-func (vad *AIRuntimeVad) Run(ctx context.Context, audio []float32) ([]float32, error) {
+func (vad *AIRuntimeVad) Run(ctx context.Context, audio []float32, out chan<- float32) error {
 	// Тензоры ссылаются на эти Go-слайсы без копирования, поэтому создаём их
 	// один раз и между вызовами меняем данные на месте.
 	//  https://github.com/snakers4/silero-vad/blob/60b7ffa243625ebdc1070275a29f18c87843786a/examples/onnx_sequence/run.py#L20
@@ -139,26 +160,25 @@ func (vad *AIRuntimeVad) Run(ctx context.Context, audio []float32) ([]float32, e
 
 	data, err := onnxruntime.CreateTensor([]int64{1, 576}, rawData)
 	if err != nil {
-		return nil, fmt.Errorf("vad input tensor: %w", err)
+		return fmt.Errorf("vad input tensor: %w", err)
 	}
 	defer data.Close()
 
 	state, err := onnxruntime.CreateTensor([]int64{2, 1, 128}, stateData)
 	if err != nil {
-		return nil, fmt.Errorf("vad state tensor: %w", err)
+		return fmt.Errorf("vad state tensor: %w", err)
 	}
 	defer state.Close()
 
 	sr, err := onnxruntime.CreateTensor([]int64{1}, []int64{RATE})
 	if err != nil {
-		return nil, fmt.Errorf("vad sr tensor: %w", err)
+		return fmt.Errorf("vad sr tensor: %w", err)
 	}
 	defer sr.Close()
 
 	inputs := map[string]*onnxruntime.Tensor{"input": data, "state": state, "sr": sr}
 	outputNames := []string{"output", "stateN"}
 
-	result := make([]float32, 0, len(audio)/512+1)
 	for i := 0; i < len(audio); i += 512 {
 		// Вход: 64 прошлых + 512 новых отсчётов. Хвост файла дополняем нулями.
 		copy(rawData[:64], rawData[512:])
@@ -167,20 +187,24 @@ func (vad *AIRuntimeVad) Run(ctx context.Context, audio []float32) ([]float32, e
 
 		output, err := vad.session.Run(ctx, inputs, outputNames)
 		if err != nil {
-			return nil, fmt.Errorf("vad run: %w", err)
+			return fmt.Errorf("vad run: %w", err)
 		}
 
 		prob, err := readVadOutput(output, stateData)
 		output["output"].Close()
 		output["stateN"].Close()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		result = append(result, prob)
+		select {
+		case out <- prob:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 	}
 
-	return result, nil
+	return nil
 }
 
 // readVadOutput достаёт вероятность речи и копирует новое состояние в stateData,
@@ -249,16 +273,6 @@ func MakeCTCSession(path, featureCoefficients, vocabPath, provider string) (*AIR
 	case "", "cpu":
 	case "webgpu":
 		if err := options.AppendExecutionProvider("WebGPU", nil); err != nil {
-			return nil, err
-		}
-	case "coreml":
-		// Без RequireStaticInputShapes MPSGraph падает при компиляции ('mps.matmul'
-		// contracting dimensions differ 1 & 768) и роняет процесс. Со статическими
-		// формами CoreML берёт только 349 из 1601 узла, остальное идёт на CPU,
-		// поэтому по скорости это почти CPU. Быстрее всего на Mac — "webgpu".
-		if err := options.AppendExecutionProvider("CoreML", map[string]string{
-			"ModelFormat": "MLProgram", "MLComputeUnits": "CPUAndGPU", "RequireStaticInputShapes": "1",
-		}); err != nil {
 			return nil, err
 		}
 	default:
@@ -371,17 +385,17 @@ func (ctc *AIRuntimeCTC) logMel(chunk []float32) ([]float32, int) {
 }
 
 // Run распознаёт окна VAD по порядку и склеивает их текст.
-func (ctc *AIRuntimeCTC) Run(ctx context.Context, vadWindows []VadWindow, audio []float32) (string, []Segment, error) {
+func (ctc *AIRuntimeCTC) Run(ctx context.Context, vadWindows <-chan VadWindow, audio []float32) (string, []Segment, error) {
 	merger := NewMerger()
-	segments := make([]Segment, 0, len(vadWindows))
-	for _, w := range vadWindows {
-		text, positions, frames, err := ctc.Recognize(ctx, audio[w.Start:w.Stop])
+	segments := make([]Segment, 0, 10)
+	for vad := range vadWindows {
+		text, positions, frames, err := ctc.Recognize(ctx, audio[vad.Start:vad.Stop])
 		if err != nil {
-			return "", segments, fmt.Errorf("ctc window %d-%d: %w", w.Start, w.Stop, err)
+			return "", segments, fmt.Errorf("ctc window %d-%d: %w", vad.Start, vad.Stop, err)
 		}
-		addition := merger.Add(w.Start, w.Stop, text, positions)
+		addition := merger.Add(vad.Start, vad.Stop, text, positions)
 		segments = append(segments, Segment{
-			Start: w.Start, Stop: w.Stop, Frames: frames, Text: text, Addition: addition,
+			Start: vad.Start, Stop: vad.Stop, Frames: frames, Text: text, Addition: addition,
 		})
 	}
 	return merger.Text(), segments, nil

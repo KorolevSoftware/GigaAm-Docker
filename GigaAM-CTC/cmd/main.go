@@ -71,11 +71,15 @@ func main() {
 	ctx := context.Background()
 	started := time.Now()
 
-	vadData, err := vad.Run(ctx, audioRaw)
+	chanVad := make(chan float32, 10)
+	go func() {
+		defer close(chanVad)
+		vad.Run(ctx, audioRaw, chanVad)
+	}()
 	if err != nil {
 		fail("vad: %v", err)
 	}
-	windows := airuntime.MakeWindows(vadData, audioRaw, 20)
+	windows := airuntime.MakeWindows(ctx, chanVad, audioRaw, 20)
 	vadDone := time.Since(started)
 
 	transcript, segments, err := ctc.Run(ctx, windows, audioRaw)
@@ -93,7 +97,7 @@ func main() {
 		})
 	}
 	enc.Encode(map[string]any{
-		"event": "done", "windows": len(windows), "transcript": transcript,
+		"event": "done", "windows": len(segments), "transcript": transcript,
 		"provider": provider, "load_s": loadSeconds, "vad_s": vadDone.Seconds(), "total_s": time.Since(started).Seconds(),
 	})
 }
