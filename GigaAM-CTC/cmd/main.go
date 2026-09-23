@@ -10,6 +10,7 @@ import (
 
 	"github.com/KorolevSoftware/GigaAm-Docker/GigaAM-CTC/audio"
 	airuntime "github.com/KorolevSoftware/GigaAm-Docker/GigaAM-CTC/internal/inference"
+	"golang.org/x/sync/errgroup"
 )
 
 // envOr возвращает переменную окружения или значение по умолчанию.
@@ -68,23 +69,35 @@ func main() {
 
 	loadSeconds := time.Since(loadStarted).Seconds()
 
-	ctx := context.Background()
 	started := time.Now()
 
 	chanVad := make(chan float32, 10)
-	go func() {
-		defer close(chanVad)
-		vad.Run(ctx, audioRaw, chanVad)
-	}()
-	if err != nil {
-		fail("vad: %v", err)
-	}
-	windows := airuntime.MakeWindows(ctx, chanVad, audioRaw, 20)
-	vadDone := time.Since(started)
 
-	transcript, segments, err := ctc.Run(ctx, windows, audioRaw)
-	if err != nil {
-		fail("ctc: %v", err)
+	g, ctx := errgroup.WithContext(context.Background()) // группа + контекст, который отменится при первой ошибке
+
+	// VAD идёт параллельно с CTC, поэтому его время меряем внутри горутины.
+	// Читать vadSeconds безопасно только после g.Wait().
+	var vadSeconds float64
+	g.Go(func() error {
+		defer close(chanVad)
+		t := time.Now()
+		err := vad.Run(ctx, audioRaw, chanVad)
+		vadSeconds = time.Since(t).Seconds()
+		return err
+	})
+
+	windows := airuntime.MakeWindows(ctx, chanVad, audioRaw, 20)
+
+	var transcript string
+	var segments []airuntime.Segment
+	g.Go(func() error {
+		var err error
+		transcript, segments, err = ctc.Run(ctx, windows, audioRaw)
+		return err
+	})
+
+	if err := g.Wait(); err != nil {
+		fail("pipeline: %v", err)
 	}
 
 	enc := json.NewEncoder(os.Stdout)
@@ -98,6 +111,6 @@ func main() {
 	}
 	enc.Encode(map[string]any{
 		"event": "done", "windows": len(segments), "transcript": transcript,
-		"provider": provider, "load_s": loadSeconds, "vad_s": vadDone.Seconds(), "total_s": time.Since(started).Seconds(),
+		"provider": provider, "load_s": loadSeconds, "vad_s": vadSeconds, "total_s": time.Since(started).Seconds(),
 	})
 }
